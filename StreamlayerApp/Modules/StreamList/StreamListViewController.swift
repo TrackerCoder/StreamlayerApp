@@ -1,263 +1,78 @@
 //
-//  ViewController.swift
+//  StreamListViewController.swift
 //  StreamlayerApp
 //
-//  Created by Tracker on 27.05.2020.
-//  Copyright © 2020 Tracker. All rights reserved.
+//  Created by Tracker on 01.06.2020.
 //
 
+import Foundation
 import UIKit
-import RxSwift
-import RxCocoa
-import StreamLayer
 import SnapKit
-import AVKit
-
-enum OverlayViewControllerState {
-    case closed
-    case opened
-}
 
 class StreamListViewController: UIViewController {
     
-    // MARK: view elements
-
-    private let videoPlayer = SLRVideoPlayer()
+    private let tableView = UITableView()
     
-    /// needs to fix issue whith player layout
-    private lazy var avPlayerController: AVPlayerViewController? = {
-        let vc = videoPlayer.children.first { (view) -> Bool in
-            return view is AVPlayerViewController
+    public var streamDidSelect: ((VideoData) -> Void)?
+
+    private var data: [VideoData] = [] {
+        didSet {
+            tableView.reloadData()
         }
-        return vc as? AVPlayerViewController
-    }()
-    
-    private let overlayView = UIView()
-
-    private lazy var overlayViewController = StreamLayer.createOverlay(
-      overlayView,
-      overlayDelegate: self
-    )
-
-    private var tableView: UITableView = {
-        return UITableView()
-    }()
-    
-    private var informationView: InformationView = {
-        return InformationView()
-    }()
-    
-    // MARK: Properties
-    private let disposeBag = DisposeBag()
-    
-    private let streamListViewModel = StreamListViewModel()
-    
-    private var displayManager: StreamListDisplayManager?
-    
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .lightContent
     }
-    
-    /// uses after setOrientation(frameSize:) called
-    private var currentWidth: CGFloat!
-    private var currentOrientation: OrientationState!
-    
-    private var overlayViewControllerState: OverlayViewControllerState = .closed
 
-    // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupDisplayManager()
-        setupView()
-        setupBindings()
+        setupViews()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        setOrientation(frameSize: view.frame.size)
+    func setupViews() {
+        view.backgroundColor = .clear
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = UITableView.automaticDimension
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = UIColor(named: "darkGray")
+        tableView.register(StreamListTableViewCell.self, forCellReuseIdentifier: StreamListTableViewCell.identifier)
+        tableView.delegate = self
+        tableView.dataSource = self
+        setupLayout()
     }
     
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-        setOrientation(frameSize: size)
-    }
-    
-    // MARK: Bindings
-    private func setupBindings() {
-        streamListViewModel.videoDataList.bind { [weak self] videoData in
-            self?.displayManager?.reload(data: videoData)
-        }.disposed(by: disposeBag)
-        
-        streamListViewModel.currentVideo.bind { [weak self] currentVideo in
-            if let currentVideo = currentVideo {
-                self?.informationView.set(title: currentVideo.title)
-                self?.videoPlayer.setNewStreamURL(withURL: currentVideo.videoId, providerType: .youtube)
-            }
-        }.disposed(by: disposeBag)
-        
-        informationView.shareDidTapped = {
-            let text = "Share text"
-            let activityVC = UIActivityViewController(activityItems: [text], applicationActivities: [])
-            self.present(activityVC, animated: true, completion: nil)
-        }
-        
-    }
-    
-    private func setupDisplayManager() {
-        displayManager = StreamListDisplayManager(tableView: tableView)
-        displayManager?.delegate = self
-    }
-    
-    // MARK: Layout
-    private func setOrientation(frameSize size: CGSize) {
-        currentOrientation = size.width > size.height ? .horizontal : .vertical
-        currentWidth = size.width
-        
-        switch currentOrientation {
-        case .horizontal:
-            informationView.removeFromSuperview()
-            tableView.removeFromSuperview()
-            setupLanscapeLayout()
-        default:
-            view.insertSubview(tableView, at: 0)
-            view.insertSubview(informationView, at: 0)
-            setupPortraitLayout()
+    func setupLayout() {
+        view.insertSubview(tableView, at: 0)
+        tableView.snp.makeConstraints {
+            $0.edges.equalTo(view)
         }
     }
     
-    private func setupView() {
-        // video player
-        videoPlayer.willMove(toParent: self)
-        addChild(videoPlayer)
-        view.addSubview(videoPlayer.view)
-        videoPlayer.didMove(toParent: self)
-
-        avPlayerController?.view.snp.makeConstraints {
-            $0.edges.equalTo(videoPlayer.view)
-        }
-        
-        // assign StreamLayer's overlayView
-        view.addSubview(overlayView)
-        overlayViewController.willMove(toParent: self)
-        addChild(overlayViewController)
-        view.addSubview(overlayViewController.view)
-        overlayViewController.didMove(toParent: self)
-
-        view.backgroundColor = .black
-    }
-    
-    private func setupLanscapeLayout() {
-        videoPlayer.view.snp.remakeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        overlayView.snp.remakeConstraints {
-            $0.edges.equalToSuperview()
-        }
-        
-        overlayViewController.view.snp.remakeConstraints {
-            $0.edges.equalToSuperview()
-        }
-    }
-    
-    private func setupPortraitLayout() {
-        let safeArea = view.safeAreaLayoutGuide
-
-        videoPlayer.view.snp.remakeConstraints {
-            $0.left.right.top.equalTo(safeArea)
-            $0.height.equalTo(currentWidth * 200/343)
-        }
-    
-        overlayView.snp.remakeConstraints {
-            $0.left.bottom.right.equalTo(safeArea)
-            if overlayViewControllerState == .opened {
-                $0.top.equalTo(videoPlayer.view.snp.bottom).offset(45) // залезает на текст, поэтому оффсет
-            } else {
-                $0.height.equalTo(100)
-            }
-        }
-        
-        overlayViewController.view.snp.remakeConstraints {
-            $0.left.right.bottom.equalTo(safeArea)
-            if overlayViewControllerState == .opened {
-                $0.top.equalTo(videoPlayer.view.snp.bottom).offset(45) // залезает на текст, поэтому оффсет
-            } else {
-                $0.height.equalTo(100)
-            }
-        }
-        
-        informationView.snp.remakeConstraints {
-            $0.left.right.equalTo(safeArea)
-            $0.top.equalTo(videoPlayer.view.snp.bottom)
-            $0.height.equalTo(60)
-        }
-        
-        tableView.snp.remakeConstraints {
-            $0.left.bottom.right.equalToSuperview()
-            $0.top.equalTo(informationView.snp.bottom)
-        }
+    func reload(data: [VideoData]) {
+        self.data = data
     }
     
 }
 
-extension StreamListViewController: StreamListDisplayManagerDelegate {
-    func tableView(didSelect video: VideoData) {
-        streamListViewModel.didSelect(video: video)
-    }
-}
-
-extension StreamListViewController: SLROverlayDelegate {
-    func requestAudioDucking() {}
+extension StreamListViewController: UITableViewDataSource, UITableViewDelegate {
     
-    func disableAudioDucking() {}
-    
-    func prepareAudioSession(for type: SLRAudioSessionType) {}
-    
-    func disableAudioSession(for type: SLRAudioSessionType) {}
-    
-    func shareInviteMessage() -> String {
-        return "shareInviteMessage"
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return data.count
     }
     
-    func waveMessage() -> String {
-        return "waveMessage"
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: StreamListTableViewCell.identifier) as! StreamListTableViewCell
+        return cell
     }
     
-//    ОverlayView отображается над tableView.
-//    Чтобы небыло проблем с userIntaraction меняю размеры overlayView в момент открытия/закрытия
-    func overlayOpened() {
-        overlayViewControllerState = .opened
-        if currentOrientation == .vertical {
-            let safeArea = view.safeAreaLayoutGuide
-
-            overlayView.snp.remakeConstraints {
-                $0.left.bottom.right.equalTo(safeArea)
-                $0.top.equalTo(videoPlayer.view.snp.bottom).offset(45) // залезает на текст, поэтому оффсет
-            }
-            
-            overlayViewController.view.snp.remakeConstraints {
-                $0.left.right.bottom.equalTo(safeArea)
-                $0.top.equalTo(videoPlayer.view.snp.bottom).offset(45) // залезает на текст, поэтому оффсет
-            }
-        }
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let cell = cell as! StreamListTableViewCell
+        let index = indexPath.row
+        let video = data[index]
+        cell.isLast = data.count - 1 == index
+        cell.fill(with: video)
     }
     
-    func overlayClosed() {
-        overlayViewControllerState = .closed
-        if currentOrientation == .vertical {
-            let safeArea = view.safeAreaLayoutGuide
-
-            overlayView.snp.remakeConstraints {
-                $0.left.bottom.right.equalTo(safeArea)
-                $0.height.equalTo(100)
-            }
-            
-            overlayViewController.view.snp.remakeConstraints {
-                $0.left.right.bottom.equalTo(safeArea)
-                $0.height.equalTo(100)
-            }
-        }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let index = indexPath.row
+        let video = data[index]
+        streamDidSelect?(video)
     }
-    
-    
 }

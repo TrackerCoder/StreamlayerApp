@@ -9,9 +9,9 @@
 import Foundation
 import UIKit
 
-class StreamTableViewCell: UITableViewCell {
+class StreamListTableViewCell: UITableViewCell {
     
-    static let identifier = "StreamTableViewCell"
+    static let identifier = "StreamListTableViewCell"
     
     var isLast: Bool = false {
         didSet {
