@@ -117,7 +117,7 @@
 				F04C3BE3245533E7BF271EEE /* AppDelegates */,
 				7EE5A7A0C3454BA6701A512B /* BusinessLogic */,
 				C6F90AEC5F56F6A2F9648593 /* Modules */,
-				78301F0E0C927D1D385143BC /* Views */,
+				78301F0E0C927D1D385143BC /* ViewHelpers */,
 				CFBBEDF46D32637C97B9A1B3 /* Assets.xcassets */,
 				21CC89C4B854C05612D81C94 /* Info.plist */,
 				074B74A9C554150C132E349F /* LaunchScreen.storyboard */,
@@ -134,13 +134,13 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		78301F0E0C927D1D385143BC /* Views */ = {
+		78301F0E0C927D1D385143BC /* ViewHelpers */ = {
 			isa = PBXGroup;
 			children = (
 				A6E6410E7A28684877CA53AE /* DashedLineView.swift */,
 				C48A32FB78F31FA73620E36A /* InformationView.swift */,
 			);
-			path = Views;
+			path = ViewHelpers;
 			sourceTree = "<group>";
 		};
 		7EE5A7A0C3454BA6701A512B /* BusinessLogic */ = {
