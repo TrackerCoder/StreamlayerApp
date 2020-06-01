@@ -57,7 +57,7 @@
 		A956F2AFE1129BF1A5F4A327 /* RxCocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RxCocoa.framework; sourceTree = "<group>"; };
 		AA172DF0FE2A1ECA56D1F0BF /* RxRelay.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = RxRelay.framework; sourceTree = "<group>"; };
 		AABC5BF8C488B90B07D6961A /* SnapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SnapKit.framework; sourceTree = "<group>"; };
-		AE2ACC61B787875E8E38760B /* StreamlayerApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = StreamlayerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AE2ACC61B787875E8E38760B /* StreamlayerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StreamlayerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B9F77D2A5D9ED2B1F78713B2 /* SwiftProtobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SwiftProtobuf.framework; sourceTree = "<group>"; };
 		C48A32FB78F31FA73620E36A /* InformationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InformationView.swift; sourceTree = "<group>"; };
 		C77030C62CFC8BDD640F8879 /* Realm.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Realm.framework; sourceTree = "<group>"; };
@@ -355,8 +355,10 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = J9XP8VFH35;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -368,6 +370,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.stream.layer.app.StreamlayerApp;
+				PROVISIONING_PROFILE_SPECIFIER = "com.stream.layer.app.StreamlayerApp AppStore";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 				XCODEGEN_STATE = YES;
@@ -379,8 +382,10 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = J9XP8VFH35;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
@@ -392,6 +397,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.stream.layer.app.StreamlayerApp;
+				PROVISIONING_PROFILE_SPECIFIER = "com.stream.layer.app.StreamlayerApp AppStore";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 1;
 				XCODEGEN_STATE = YES;

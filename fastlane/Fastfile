@@ -29,9 +29,10 @@ platform :ios do
   end
 
   lane :beta do
+      # вообще лучше match поработать, но у меня что-то не хочет фурычить.
       cert
       sigh
-      increment_build_number
+      # increment_build_number 
       gym(export_method: "app-store")
       upload_to_testflight(
            skip_submission: true,

@@ -77,8 +77,6 @@ class StreamViewController: UIViewController {
     
     // MARK: Bindings
     private func setupBindings() {
-        
-        
         streamListViewModel.videoDataList.bind { [weak self] videoData in
             self?.streamListViewController.reload(data: videoData)
         }.disposed(by: disposeBag)
