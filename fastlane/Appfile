@@ -1,0 +1,3 @@
+
+app_identifier("com.stream.layer.app.StreamlayerApp") # The bundle identifier of your app
+apple_id("vshilenock@gmail.com") # Your Apple email address

@@ -1,0 +1,56 @@
+name: StreamlayerApp
+configs:
+  Production: release
+  Debug: debug
+options:
+  deploymentTarget:
+    iOS: 13.0
+  defaultConfig: Production
+  groupSortPosition: top
+  developmentLanguage: ru
+
+settings:
+  base:
+    SWIFT_VERSION: 5.1.3
+  configs:
+    Production:
+      ENABLE_TESTABILITY: NO
+      SWIFT_COMPILATION_MODE: wholemodule
+      SWIFT_OPTIMIZATION_LEVEL: -O
+      VALIDATE_PRODUCT: YES
+    Debug:
+      ENABLE_TESTABILITY: YES
+      SWIFT_COMPILATION_MODE: singlefile
+      SWIFT_OPTIMIZATION_LEVEL: -Onone
+      VALIDATE_PRODUCT: NO
+
+targets:
+  StreamlayerApp:
+    type: application
+    platform: iOS
+    deploymentTarget: 13.0
+    sources:
+      - path: StreamlayerApp
+    settings:
+      base:
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: $(inherited)
+        DEFINES_MODULE: YES
+        INFOPLIST_FILE: StreamlayerApp/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.stream.layer.app.StreamlayerApp
+        TARGETED_DEVICE_FAMILY: 1
+        XCODEGEN_STATE: YES
+    dependencies:
+        - carthage: RxSwift
+        - carthage: RxCocoa
+        - carthage: RxRelay
+        - carthage: StreamLayer
+        - carthage: StreamLayerVendor
+        - carthage: BoringSSL
+        - carthage: CgRPC
+        - carthage: Realm
+        - carthage: RealmSwift
+        - carthage: SLProtofiles
+        - carthage: SwiftGRPC
+        - carthage: SwiftProtobuf
+        - carthage: WebRTC
+        - carthage: SnapKit
