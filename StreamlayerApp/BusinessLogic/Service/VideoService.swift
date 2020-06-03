@@ -17,13 +17,13 @@ class VideoServiceImp: VideoService {
     private init() {}
     
     func fetchVideoData() -> [VideoData] {
-        let video1 = VideoData(title: "Helios Deep Music Radio",
-                               duration: "2:17",
-                               videoId: "Bu8RvJ9R02M")
-        
         let video2 = VideoData(title: "lofi hip hop radio",
                                duration: "3:38",
                                videoId: "IjMESxJdWkg")
+        
+        let video1 = VideoData(title: "Music Radio",
+                               duration: "2:17",
+                               videoId: "sMj7ZEvuEI8")
         
         let video3 = VideoData(title: "NCM 24/7 Live Stream",
                                duration: "3:47",

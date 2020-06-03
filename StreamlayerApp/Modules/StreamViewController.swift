@@ -13,11 +13,6 @@ import StreamLayer
 import SnapKit
 import AVKit
 
-enum OverlayViewControllerState {
-    case closed
-    case opened
-}
-
 class StreamViewController: UIViewController {
     
     // MARK: view elements
@@ -54,10 +49,9 @@ class StreamViewController: UIViewController {
     
     /// uses after setOrientation(frameSize:) called
     private var currentWidth: CGFloat!
-    private var currentOrientation: OrientationState!
     
-    private var overlayViewControllerState: OverlayViewControllerState = .closed
-
+    private var currentOrientation: OrientationState = .vertical
+    
     // MARK: Life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -109,7 +103,7 @@ class StreamViewController: UIViewController {
             informationView.removeFromSuperview()
             streamListViewController.view.removeFromSuperview()
             setupLanscapeLayout()
-        default:
+        case .vertical:
             view.insertSubview(streamListViewController.view, at: 0)
             view.insertSubview(informationView, at: 0)
             setupPortraitLayout()
@@ -117,23 +111,25 @@ class StreamViewController: UIViewController {
     }
     
     private func setupView() {
-        // video player
+        // assign video player
         videoPlayer.willMove(toParent: self)
         addChild(videoPlayer)
         view.addSubview(videoPlayer.view)
         videoPlayer.didMove(toParent: self)
 
+        // fix bug with SLRVideoPlayer
         avPlayerController?.view.snp.makeConstraints {
             $0.edges.equalTo(videoPlayer.view)
         }
         
         // assign StreamLayer's overlayView
         view.addSubview(overlayView)
+        overlayView.isUserInteractionEnabled = false
+        
         overlayViewController.willMove(toParent: self)
         addChild(overlayViewController)
         view.addSubview(overlayViewController.view)
         overlayViewController.didMove(toParent: self)
-
         
         streamListViewController.willMove(toParent: self)
         addChild(streamListViewController)
@@ -149,7 +145,8 @@ class StreamViewController: UIViewController {
         }
         
         overlayView.snp.remakeConstraints {
-            $0.edges.equalToSuperview()
+            $0.left.top.bottom.equalToSuperview()
+            $0.width.equalTo(500)
         }
         
         overlayViewController.view.snp.remakeConstraints {
@@ -166,21 +163,13 @@ class StreamViewController: UIViewController {
         }
     
         overlayView.snp.remakeConstraints {
-            $0.left.bottom.right.equalTo(safeArea)
-            if overlayViewControllerState == .opened {
-                $0.top.equalTo(videoPlayer.view.snp.bottom).offset(45) // залезает на текст, поэтому оффсет
-            } else {
-                $0.height.equalTo(100)
-            }
+            $0.bottom.left.right.equalToSuperview()
+            $0.top.equalTo(videoPlayer.view.snp.bottom).offset(-40)
         }
         
         overlayViewController.view.snp.remakeConstraints {
-            $0.left.right.bottom.equalTo(safeArea)
-            if overlayViewControllerState == .opened {
-                $0.top.equalTo(videoPlayer.view.snp.bottom).offset(45) // залезает на текст, поэтому оффсет
-            } else {
-                $0.height.equalTo(100)
-            }
+            $0.bottom.left.right.equalToSuperview()
+            $0.top.equalTo(videoPlayer.view.snp.bottom).offset(-40)
         }
         
         informationView.snp.remakeConstraints {
@@ -195,7 +184,7 @@ class StreamViewController: UIViewController {
         }
         
     }
-    
+
 }
 
 extension StreamViewController: SLROverlayDelegate {
@@ -215,40 +204,12 @@ extension StreamViewController: SLROverlayDelegate {
         return "waveMessage"
     }
     
-//    ОverlayView отображается над tableView.
-//    Чтобы небыло проблем с userIntaraction меняю размеры overlayView в момент открытия/закрытия
     func overlayOpened() {
-        overlayViewControllerState = .opened
-        if currentOrientation == .vertical {
-            let safeArea = view.safeAreaLayoutGuide
-
-            overlayView.snp.remakeConstraints {
-                $0.left.bottom.right.equalTo(safeArea)
-                $0.top.equalTo(videoPlayer.view.snp.bottom).offset(45) // залезает на текст, поэтому оффсет
-            }
-            
-            overlayViewController.view.snp.remakeConstraints {
-                $0.left.right.bottom.equalTo(safeArea)
-                $0.top.equalTo(videoPlayer.view.snp.bottom).offset(45) // залезает на текст, поэтому оффсет
-            }
-        }
+        overlayView.isUserInteractionEnabled = true
     }
     
     func overlayClosed() {
-        overlayViewControllerState = .closed
-        if currentOrientation == .vertical {
-            let safeArea = view.safeAreaLayoutGuide
-
-            overlayView.snp.remakeConstraints {
-                $0.left.bottom.right.equalTo(safeArea)
-                $0.height.equalTo(100)
-            }
-            
-            overlayViewController.view.snp.remakeConstraints {
-                $0.left.right.bottom.equalTo(safeArea)
-                $0.height.equalTo(100)
-            }
-        }
+        overlayView.isUserInteractionEnabled = false
     }
     
 }
