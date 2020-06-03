@@ -140,17 +140,19 @@ class StreamViewController: UIViewController {
     }
     
     private func setupLanscapeLayout() {
+        let safeArea = view.safeAreaLayoutGuide
+
         videoPlayer.view.snp.remakeConstraints {
             $0.edges.equalToSuperview()
         }
         
         overlayView.snp.remakeConstraints {
-            $0.left.top.bottom.equalToSuperview()
+            $0.left.top.bottom.equalTo(safeArea)
             $0.width.equalTo(500)
         }
         
         overlayViewController.view.snp.remakeConstraints {
-            $0.edges.equalToSuperview()
+            $0.edges.equalTo(safeArea)
         }
     }
     
